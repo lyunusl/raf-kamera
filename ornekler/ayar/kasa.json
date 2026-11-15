@@ -1,0 +1,48 @@
+{
+ "ad": "Kasa",
+ "kisi_fps": 4,
+ "bolgeler": [
+  {
+   "ad": "Kasa 1 kuyruğu",
+   "tur": "kasa",
+   "esik": 5,
+   "poly": [
+    [
+     0.44,
+     0.3
+    ],
+    [
+     0.6,
+     0.2
+    ],
+    [
+     1,
+     0.5
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0.62,
+     1
+    ],
+    [
+     0.42,
+     0.62
+    ]
+   ]
+  }
+ ],
+ "ozellikler": {
+  "kasa_kuyrugu": {
+   "acik": true,
+   "esik": 5,
+   "sure_sn": 2,
+   "en_az_sn": 1
+  },
+  "demografi": {
+   "acik": false
+  }
+ }
+}

@@ -1,0 +1,41 @@
+// Bu dosyayı kurulum/modeller_iss.py üretir (studio_kurulum.MODELLER). Elle değiştirmeyin.
+// RafKamera.iss bunu [Code] bölümüne ekler: ModelleriTanimla, indirilecek modellerin listesini kurar.
+procedure ModelleriTanimla();
+begin
+  SetArrayLength(ModelAdlari, 8);
+  SetArrayLength(ModelBoyutlari, 8);
+  SetArrayLength(ModelOzetleri, 8);
+  SetArrayLength(ModelAdresleri, 8);
+  ModelAdlari[0] := 'kisi.onnx.isgm';
+  ModelBoyutlari[0] := 38626242;
+  ModelOzetleri[0] := '01b81e1e0406aeba49955fa281d0e1f77be30cfd39dfd78bb543b3493ff2e6a6';
+  ModelAdresleri[0] := 'https://drive.usercontent.google.com/download?id=1x85kHFRrm0fxlkaUCxyunnTsuQ6RyzSO&export=download&confirm=t';
+  ModelAdlari[1] := 'iskelet.onnx.isgm';
+  ModelBoyutlari[1] := 12065782;
+  ModelOzetleri[1] := 'f3f034b82d33913ef5bd24f79bd85da7fc700250ea43504f25d39b624768f67f';
+  ModelAdresleri[1] := 'https://drive.usercontent.google.com/download?id=1QkOXSoLbWL5XyKGBKV0IUSYs8sTBDhua&export=download&confirm=t';
+  ModelAdlari[2] := 'ozellik.onnx.isgm';
+  ModelBoyutlari[2] := 6888956;
+  ModelOzetleri[2] := '139e631ca638af257848a2020085fa00b68e15c70b6a5b0ab89b93be3163ef33';
+  ModelAdresleri[2] := 'https://drive.usercontent.google.com/download?id=1w4AVdk_GGgSuxtblnLdN55L-ILk5jXG_&export=download&confirm=t';
+  ModelAdlari[3] := 'urun.onnx.isgm';
+  ModelBoyutlari[3] := 37927895;
+  ModelOzetleri[3] := '1889cc1e670815cf9bf50f4caaebf1c86a129bdc6adbb66f51f8097ad73a4223';
+  ModelAdresleri[3] := 'https://drive.usercontent.google.com/download?id=1R_OPYNjVH-KqnGDe7qA_7HuQPjFeM-R9&export=download&confirm=t';
+  ModelAdlari[4] := 'gomme.onnx.isgm';
+  ModelBoyutlari[4] := 16007066;
+  ModelOzetleri[4] := 'b191ac2c99fb3cb0d40fed377b5571db5f94f268f5768e890a0f1b5af9f1649f';
+  ModelAdresleri[4] := 'https://drive.usercontent.google.com/download?id=1Qa1_Ird3gibphHlo6kDqunSd4nmeYoon&export=download&confirm=t';
+  ModelAdlari[5] := 'etiket-bul.onnx.isgm';
+  ModelBoyutlari[5] := 4826586;
+  ModelOzetleri[5] := '519fe76f4bcd3a4a0207378f926874f472cdcedc7ceed93dae71548269930947';
+  ModelAdresleri[5] := 'https://drive.usercontent.google.com/download?id=1P7vui5JN-0Bdc1SoQFMODN9P4b2JVLL9&export=download&confirm=t';
+  ModelAdlari[6] := 'etiket-oku.onnx.isgm';
+  ModelBoyutlari[6] := 8042091;
+  ModelOzetleri[6] := '2509579739a56519a80e3551860430edb32ce9216c95ba94ab54f74ac937c048';
+  ModelAdresleri[6] := 'https://drive.usercontent.google.com/download?id=14VbN6k1xJLgAcWzePM5vTg2xc7hbEH7-&export=download&confirm=t';
+  ModelAdlari[7] := 'etiket-oku.txt';
+  ModelBoyutlari[7] := 2616;
+  ModelOzetleri[7] := 'ccbcc45730b3fbbd9050c5bc74db6a99067141ef1035e3d14889a84a6b9b1aff';
+  ModelAdresleri[7] := 'https://drive.usercontent.google.com/download?id=1Ku3NXFD6mYfCpM1rs72QK_6iO28rJt88&export=download&confirm=t';
+end;

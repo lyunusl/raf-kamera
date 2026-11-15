@@ -1,0 +1,59 @@
+{
+ "_aciklama": "Göz etiketi (yüzü gizlenmiş kırpıntılardan; yalnızca gövde/giysiden açıkça karar verilebilenler). Anahtar video:iz (dene_musteri_demografi.py çıktısı, 2026-11-15 sürümü). Kişisel bilgi yoktur.",
+ "bahce.mp4:9": {
+  "cins": "kadin",
+  "yas": "yetiskin"
+ },
+ "gercek_kafe.mp4:11": {
+  "cins": "kadin",
+  "yas": "yetiskin"
+ },
+ "bahce.mp4:2": {
+  "yas": "yetiskin"
+ },
+ "bahce.mp4:6": {
+  "yas": "yetiskin"
+ },
+ "gercek_kafe.mp4:1": {
+  "yas": "yetiskin"
+ },
+ "gercek_kafe.mp4:6": {
+  "yas": "yetiskin"
+ },
+ "gercek_kafe.mp4:10": {
+  "yas": "yetiskin"
+ },
+ "kasa.mp4:1": {
+  "yas": "yetiskin"
+ },
+ "kasa.mp4:3": {
+  "yas": "yetiskin"
+ },
+ "kasa.mp4:4": {
+  "yas": "yetiskin"
+ },
+ "kasa.mp4:7": {
+  "yas": "yetiskin"
+ },
+ "salon.mp4:5": {
+  "yas": "yetiskin"
+ },
+ "salon.mp4:3": {
+  "yas": "yetiskin"
+ },
+ "salon.mp4:12": {
+  "yas": "yetiskin"
+ },
+ "bahce.mp4:7": {
+  "cins": "erkek",
+  "yas": "yetiskin"
+ },
+ "teras.mp4:2": {
+  "cins": "erkek",
+  "yas": "yetiskin"
+ },
+ "teras.mp4:5": {
+  "cins": "erkek",
+  "yas": "yetiskin"
+ }
+}

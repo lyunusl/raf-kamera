@@ -1,0 +1,100 @@
+[
+ {
+  "kimlik": "ov1",
+  "ad": "Vişne reçeli",
+  "kategori": "Kahvaltılık",
+  "fiyat": 89.9,
+  "gorseller": [
+   "ov1_1.jpg",
+   "ov1_2.jpg"
+  ]
+ },
+ {
+  "kimlik": "ov2",
+  "ad": "Koyu şişe sos, beyaz etiket",
+  "kategori": "Sos",
+  "fiyat": 64.5,
+  "gorseller": [
+   "ov2_1.jpg",
+   "ov2_2.jpg"
+  ]
+ },
+ {
+  "kimlik": "ov3",
+  "ad": "Koyu şişe sos, sarı etiket",
+  "kategori": "Sos",
+  "fiyat": 69.5,
+  "gorseller": [
+   "ov3_1.jpg"
+  ]
+ },
+ {
+  "kimlik": "ov4",
+  "ad": "Mavi şişe içecek",
+  "kategori": "İçecek",
+  "fiyat": 42.0,
+  "gorseller": [
+   "ov4_1.jpg",
+   "ov4_2.jpg"
+  ]
+ },
+ {
+  "kimlik": "ov5",
+  "ad": "Sarı kutu",
+  "kategori": "İçecek",
+  "fiyat": 120.0,
+  "gorseller": [
+   "ov5_1.jpg",
+   "ov5_2.jpg"
+  ]
+ },
+ {
+  "kimlik": "ov6",
+  "ad": "Kırmızı etiketli şişe",
+  "kategori": "İçecek",
+  "fiyat": 38.5,
+  "gorseller": [
+   "ov6_1.jpg",
+   "ov6_2.jpg"
+  ]
+ },
+ {
+  "kimlik": "ov7",
+  "ad": "Sarı şişe içecek",
+  "kategori": "İçecek",
+  "fiyat": 35.0,
+  "gorseller": [
+   "ov7_1.jpg"
+  ]
+ },
+ {
+  "kimlik": "ov8",
+  "ad": "Şeffaf şişe içecek",
+  "kategori": "İçecek",
+  "fiyat": 29.9,
+  "gorseller": [
+   "ov8_1.jpg",
+   "ov8_2.jpg"
+  ]
+ },
+ {
+  "kimlik": "ov9",
+  "ad": "Baharat kavanozu",
+  "kategori": "Kuru gıda",
+  "fiyat": 54.0,
+  "gorseller": [
+   "ov9_1.jpg",
+   "ov9_2.jpg"
+  ]
+ },
+ {
+  "kimlik": "ov10",
+  "ad": "Koyu kapaklı kavanoz",
+  "kategori": "Kuru gıda",
+  "fiyat": 47.5,
+  "gorseller": [
+   "ov10_1.jpg",
+   "ov10_2.jpg"
+  ]
+ }
+]

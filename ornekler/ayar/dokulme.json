@@ -1,0 +1,46 @@
+{
+ "ad": "Koridor: dökülme",
+ "kisi_fps": 4,
+ "bolgeler": [
+  {
+   "ad": "Koridor zemini",
+   "tur": "koridor",
+   "poly": [
+    [
+     0.335,
+     1
+    ],
+    [
+     0.455,
+     0.28
+    ],
+    [
+     0.545,
+     0.28
+    ],
+    [
+     0.665,
+     1
+    ]
+   ]
+  }
+ ],
+ "ozellikler": {
+  "dokulme": {
+   "acik": true,
+   "sure_sn": 2,
+   "kisi_sn": 2
+  },
+  "tikali_koridor": {
+   "acik": true,
+   "sure_sn": 2
+  },
+  "bekleme": {
+   "acik": true,
+   "esik_sn": 2
+  },
+  "demografi": {
+   "acik": false
+  }
+ }
+}

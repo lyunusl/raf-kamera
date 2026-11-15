@@ -1,0 +1,136 @@
+{
+ "ad": "Soğutucu dolaplar",
+ "kisi_fps": 4,
+ "bolgeler": [
+  {
+   "ad": "Dolap 1",
+   "tur": "dolap",
+   "poly": [
+    [
+     0.02,
+     0.07
+    ],
+    [
+     0.23,
+     0.07
+    ],
+    [
+     0.23,
+     0.66
+    ],
+    [
+     0.02,
+     0.66
+    ]
+   ],
+   "gozler": []
+  },
+  {
+   "ad": "Dolap 2",
+   "tur": "dolap",
+   "poly": [
+    [
+     0.26,
+     0.07
+    ],
+    [
+     0.48,
+     0.07
+    ],
+    [
+     0.48,
+     0.66
+    ],
+    [
+     0.26,
+     0.66
+    ]
+   ],
+   "gozler": []
+  },
+  {
+   "ad": "Dolap 3",
+   "tur": "dolap",
+   "poly": [
+    [
+     0.5,
+     0.07
+    ],
+    [
+     0.73,
+     0.07
+    ],
+    [
+     0.73,
+     0.66
+    ],
+    [
+     0.5,
+     0.66
+    ]
+   ],
+   "gozler": []
+  },
+  {
+   "ad": "Dolap 4",
+   "tur": "dolap",
+   "poly": [
+    [
+     0.73,
+     0.07
+    ],
+    [
+     0.97,
+     0.07
+    ],
+    [
+     0.97,
+     0.66
+    ],
+    [
+     0.73,
+     0.66
+    ]
+   ],
+   "gozler": []
+  },
+  {
+   "ad": "Dolap önü",
+   "tur": "koridor",
+   "poly": [
+    [
+     0,
+     0.78
+    ],
+    [
+     1,
+     0.78
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ]
+  }
+ ],
+ "ozellikler": {
+  "dolap_acik": {
+   "acik": true,
+   "sure_sn": 1
+  },
+  "bekleme": {
+   "acik": true,
+   "esik_sn": 2
+  },
+  "tikali_koridor": {
+   "acik": false
+  },
+  "demografi": {
+   "acik": false
+  }
+ }
+}

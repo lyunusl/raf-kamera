@@ -1,0 +1,32 @@
+{
+ "ad": "Giriş",
+ "kisi_fps": 4,
+ "bolgeler": [
+  {
+   "ad": "Ana kapı",
+   "tur": "giris",
+   "cizgi": [
+    [
+     0.25,
+     0.8
+    ],
+    [
+     0.75,
+     0.8
+    ]
+   ],
+   "ic": [
+    0.5,
+    0.95
+   ]
+  }
+ ],
+ "ozellikler": {
+  "giris_sayim": {
+   "acik": true
+  },
+  "demografi": {
+   "acik": false
+  }
+ }
+}

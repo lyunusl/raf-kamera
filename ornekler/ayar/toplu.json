@@ -1,0 +1,82 @@
+{
+ "ad": "Raf: toplu alma",
+ "bolgeler": [
+  {
+   "ad": "Koli rafı",
+   "tur": "raf",
+   "poly": [
+    [
+     0.3,
+     0.35
+    ],
+    [
+     0.72,
+     0.35
+    ],
+    [
+     0.72,
+     0.545
+    ],
+    [
+     0.3,
+     0.545
+    ]
+   ],
+   "gozler": []
+  },
+  {
+   "ad": "Raf önü",
+   "tur": "koridor",
+   "poly": [
+    [
+     0,
+     0.88
+    ],
+    [
+     1,
+     0.88
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ]
+  }
+ ],
+ "kisi_fps": 6,
+ "raf_araligi_sn": 1,
+ "ozellikler": {
+  "bekleme": {
+   "acik": true,
+   "esik_sn": 1.5
+  },
+  "uzanma": {
+   "acik": true,
+   "en_az_kare": 2
+  },
+  "bos_raf": {
+   "acik": true,
+   "sure_sn": 1
+  },
+  "az_stok": {
+   "acik": true,
+   "sure_sn": 1
+  },
+  "yanlis_urun": {
+   "acik": true,
+   "sure_sn": 1
+  },
+  "demografi": {
+   "acik": false
+  },
+  "toplu_alma": {
+   "acik": true,
+   "uzanma_sayi": 4,
+   "pencere_sn": 60
+  }
+ }
+}
