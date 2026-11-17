@@ -381,7 +381,11 @@ class Kosu:
             time.sleep(0.2)
         if self.calisiyor():
             # Studio sürekli çalışma kipinde kendiliğinden bitmez: süreç ağacı (denetleyici ve işçi) kapatılır
-            subprocess.run(["taskkill", "/PID", str(self.surec.pid), "/T", "/F"], capture_output=True, creationflags=PENCERESIZ)
+            try:
+                subprocess.run(["taskkill", "/PID", str(self.surec.pid), "/T", "/F"], capture_output=True,
+                               creationflags=PENCERESIZ, timeout=10)
+            except subprocess.TimeoutExpired:
+                pass
             try:
                 self.surec.wait(10)
             except subprocess.TimeoutExpired:
@@ -460,8 +464,9 @@ def durdur_hepsi(bekle_sn: float = 3.0) -> None:
     kapatanlar = [threading.Thread(target=k.bitir, args=(0,), daemon=True, name=f"studio-{k.kod}-kapat") for k in kosular]
     for t in kapatanlar:
         t.start()
+    son = time.monotonic() + 25  # bütün kapatmalar için tek süre: bekleme kamera sayısıyla uzamaz
     for t in kapatanlar:
-        t.join(15)
+        t.join(max(0.0, son - time.monotonic()))
 
 
 # ---------------------------------------------------------------- durum ve deneme

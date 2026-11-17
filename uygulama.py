@@ -920,17 +920,32 @@ def istenen_izlemeler() -> list[str]:
     return [k for k in liste if isinstance(k, str) and KOD_RE.match(k) and ayar_yolu(k).exists()]
 
 
+def _izleme_listesini_yaz(kod: str, istenir: bool) -> None:
+    """İzlenmesi istenen kameralar listesini günceller. _IZLEME_KILIDI tutulurken çağrılır."""
+    try:
+        liste = json.loads(_izleme_dosyasi().read_text(encoding="utf-8")).get("kameralar") or []
+    except (OSError, ValueError, AttributeError):
+        liste = []
+    liste = [k for k in liste if k != kod] + ([kod] if istenir else [])
+    yollar.VERI.mkdir(parents=True, exist_ok=True)
+    gecici = _izleme_dosyasi().with_suffix(".json.tmp")
+    gecici.write_text(json.dumps({"kameralar": liste}, ensure_ascii=False), encoding="utf-8")
+    os.replace(gecici, _izleme_dosyasi())
+
+
+def izleme_istegi_kaydet(kod: str) -> bool:
+    """Çalışma saati dışında gelen izleme isteğini kaydeder (açılışta başlasın). Kapanış başladıysa kaydetmez ve False
+    döner. Bayrağa bakmak ve kaydetmek aynı kilit altındadır; kapanış bayrağı da bu kilit altında kurar."""
+    with _IZLEME_KILIDI:
+        if KAPANIYOR.is_set():
+            return False
+        _izleme_listesini_yaz(kod, True)
+    return True
+
+
 def izleme_istenir(kod: str, istenir: bool) -> None:
     with _IZLEME_KILIDI:
-        try:
-            liste = json.loads(_izleme_dosyasi().read_text(encoding="utf-8")).get("kameralar") or []
-        except (OSError, ValueError, AttributeError):
-            liste = []
-        liste = [k for k in liste if k != kod] + ([kod] if istenir else [])
-        yollar.VERI.mkdir(parents=True, exist_ok=True)
-        gecici = _izleme_dosyasi().with_suffix(".json.tmp")
-        gecici.write_text(json.dumps({"kameralar": liste}, ensure_ascii=False), encoding="utf-8")
-        os.replace(gecici, _izleme_dosyasi())
+        _izleme_listesini_yaz(kod, istenir)
     if not istenir:
         _SIFRELER.pop(kod, None)
         _IZLEME_DURUMU.pop(kod, None)
@@ -2061,7 +2076,8 @@ class Istek(BaseHTTPRequestHandler):
                     return self._json({"hata": KAPANIYOR_METNI}, 409)
                 if not depo.calisma_saatinde(dt.datetime.now()):
                     c = depo.genel()["calisma"]
-                    izleme_istenir(kod, True)
+                    if not izleme_istegi_kaydet(kod):  # kapanış iki adım arasında başladıysa
+                        return self._json({"hata": KAPANIYOR_METNI}, 409)
                     if sifre:
                         _SIFRELER[kod] = sifre  # yalnızca bellekte
                     return self._json({"tamam": True, "ileti": f"Çalışma saatleri dışında ({c['bas']}–{c['bit']}). İzleme açılışta kendiliğinden başlayacak."})
@@ -2249,10 +2265,12 @@ def kapanis_temizligi(is_bekle_sn: float = 20.0) -> None:
     kapatır. İlk andan itibaren yeni iş ve yeni izleme kabul edilmez (beklenirken sunucu istek yanıtlamaya devam edebilir).
     İzlenmesi istenen kameralar listede kalır: program açılınca yeniden başlar."""
     with IS_KILIDI:
-        KAPANIYOR.set()
-        aktif = AKTIF
-    with _IZLEME_KILIDI:  # izleme_baslat bayrağa bu kilit altında bakar: bundan sonra yeni izleme kaydedilemez
-        isler = [i for i in [aktif, *IZLEMELER.values()] if i is not None and i.durum == "calisiyor"]
+        # izleme_baslat ve izleme_istegi_kaydet bayrağa _IZLEME_KILIDI altında bakar: bayrak o kilit de tutulurken kurulur,
+        # bundan sonra yeni izleme ya da izleme isteği kaydedilemez (kilit sırası her yerde IS_KILIDI -> _IZLEME_KILIDI)
+        with _IZLEME_KILIDI:
+            KAPANIYOR.set()
+            aktif = AKTIF
+            isler = [i for i in [aktif, *IZLEMELER.values()] if i is not None and i.durum == "calisiyor"]
     for i in isler:
         i.dur.set()
     son = time.monotonic() + is_bekle_sn
