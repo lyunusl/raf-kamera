@@ -347,6 +347,16 @@ kontrol("eski artık klip/kare silindi; son_kare ve yeni dosya kaldı", not (yol
 kontrol("kuyrukta eski yarım (.tmp) ve okunamayan kayıt silindi, okunabilir kayıt kaldı",
         not (kuyruk.KLASOR / "1_s1_1.tmp").exists() and not (kuyruk.KLASOR / "2_s1_2.json").exists() and (kuyruk.KLASOR / "3_s1_3.json").exists())
 
+# --- kapanış başladıysa çalışma saati dışında da yeni izleme isteği kaydedilmez
+onceki = sorted(uygulama.istenen_izlemeler())
+SAAT["acik"] = False
+uygulama.KAPANIYOR.set()
+st, y = post("/api/is/izle", {"kod": "c3"})
+uygulama.KAPANIYOR.clear()
+SAAT["acik"] = True
+kontrol("kapanırken çalışma saati dışında yeni izleme isteği kaydedilmez",
+        st == 409 and "kapanıyor" in str(y) and sorted(uygulama.istenen_izlemeler()) == onceki, (st, y, onceki))
+
 sunucu.shutdown()
 basarili = sum(1 for _, ok in sonuc if ok)
 print(f"\n{basarili}/{len(sonuc)} denetim geçti.")

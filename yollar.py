@@ -52,7 +52,8 @@ def _profil_kokleri() -> list[tuple[str, str]]:
 
 def gizle(metin: str) -> str:
     """Tarayıcıya giden metindeki kullanıcı profili yollarını kısaltır: C:\\Users\\ad\\AppData\\Local\\RafKamera →
-    %LOCALAPPDATA%\\RafKamera. Kullanıcı adı ekrana ve API yanıtına çıkmasın diye (konsol ve günlük dosyası tam yolu tutar)."""
+    %LOCALAPPDATA%\\RafKamera. Kullanıcı adı ekrana, API yanıtına ve Studio'nun günlük dosyasına çıkmasın diye (konsol tam
+    yolu tutar)."""
     if not isinstance(metin, str) or not metin:
         return metin
     for yol, ad in _profil_kokleri():

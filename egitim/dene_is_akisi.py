@@ -7,6 +7,8 @@ Studio çağrıları sahte işlevlerle değiştirilir; veri klasörü geçicidir
   - sahnenin durduğu doğrulanamazsa ya da kuyruk boşalmazsa iş hatayla biter, açık olay ve yarım klip temizliği yapılmaz
   - kuyruk bekleyicisi, klip dönüştürme içeri alma kilidini tutarken de süresini aşmadan False döner
   - Raf Analiz, Bitti=True geldiğinde (kayıtçı kurulmamış olsa da) görüntü çıkışını boş bırakır
+  - işini bitirdikten sonra gelen durdurma işi "durduruldu" yapmaz (bağlantı denemesinin karesi kaydedilmişse "bitti")
+  - kapanış süren işi ve canlı izlemeleri durdurup bekler, sonra Studio'yu kapatır; ondan sonra yeni iş ve izleme kabul edilmez
 """
 import asyncio
 import os
@@ -208,6 +210,75 @@ print("Raf Analiz: Bitti=True")
 kare = np.full((120, 160, 3), 90, np.uint8)
 cikis = blok.analiz({}, kare, "[]", "[]", "dnm#1", 0.0, True)
 denetle("kayıtçı kurulmamışken dolu girişle: görüntü çıkışı boş", cikis[0] is None and cikis[3] is False)
+
+
+def bitene_kadar(is_, sn=5.0):
+    son = time.monotonic() + sn
+    while is_.durum == "calisiyor" and time.monotonic() < son:
+        time.sleep(0.02)
+
+
+print("Geç gelen durdurma")
+
+
+def yine_de_bitti(is_):
+    is_.dur.set()  # durdurma, iş bittiğinde gelir (bağlantı denemesinin karesi kaydedilmişti)
+    return {"tamamlandi": True}
+
+
+def zamaninda_durdu(is_):
+    is_.dur.set()
+    return {}
+
+
+for islev, beklenen in ((yine_de_bitti, "bitti"), (zamaninda_durdu, "durduruldu")):
+    uygulama.AKTIF = None
+    uygulama.is_baslat("test", "geç durdurma", islev)
+    is_ = uygulama.AKTIF
+    bitene_kadar(is_)
+    denetle(f"{islev.__name__}: iş {beklenen} olarak bildirilir", is_.durum == beklenen)
+
+gercek_test = kamera.test
+for donus, beklenen in ((0, "bitti"), (2, "durduruldu"), (1, "hata")):
+    def sahte_test(ayar, yol, sifre, dur=None, donus=donus):
+        dur.set()  # kullanıcı denemeyi durdurdu (0: kare zaten kaydedilmişti)
+        return donus
+
+    kamera.test = sahte_test
+    uygulama.AKTIF = None
+    uygulama.is_baslat("test", "bağlantı denemesi", uygulama.is_test, KOD, None)
+    is_ = uygulama.AKTIF
+    bitene_kadar(is_)
+    denetle(f"bağlantı denemesi (dönüş {donus}) durdurulunca {beklenen} gösterilir", is_.durum == beklenen)
+kamera.test = gercek_test
+
+print("Programın kapanması")
+uygulama.AKTIF = None
+
+
+def durdurulana_dek(is_):
+    while not is_.dur.is_set():
+        time.sleep(0.05)
+    time.sleep(0.3)  # durdurmadan sonra işin yapacakları var (sahnesini kapatmak)
+    return {}
+
+
+durdurulan: list[str] = []
+studio.durdur_hepsi = lambda: durdurulan.append("hepsi")
+ok, _ = uygulama.is_baslat("video", "kapanış denemesi", durdurulana_dek)
+calisan = uygulama.AKTIF
+izleme = uygulama.Is("izle", "İzleme · deneme")
+uygulama.IZLEMELER["izl"] = izleme
+uygulama._is_calistir(izleme, durdurulana_dek)
+t0 = time.monotonic()
+uygulama.kapanis_temizligi(10)
+gecen = time.monotonic() - t0
+denetle("kapanış süren işi ve canlı izlemeyi durdurur, bitmelerini bekler, sonra Studio'yu kapatır",
+        ok and calisan.durum == "durduruldu" and izleme.durum == "durduruldu" and 0.25 < gecen < 5 and durdurulan == ["hepsi"])
+ok, neden = uygulama.is_baslat("video", "kapanıştan sonra", durdurulana_dek)
+denetle("kapanış başladıktan sonra yeni iş kabul edilmez", not ok and "kapanıyor" in neden and uygulama.AKTIF is calisan)
+ok, neden = uygulama.izleme_baslat(KOD)
+denetle("kapanış başladıktan sonra yeni canlı izleme başlatılmaz", not ok and "kapanıyor" in neden and KOD not in uygulama.IZLEMELER)
 
 kalan = [ad for ad, ok in sonuc if not ok]
 print(f"\n{len(sonuc) - len(kalan)}/{len(sonuc)} denetim geçti" + (f" · kalanlar: {kalan}" if kalan else ""))

@@ -128,6 +128,8 @@ YON_ERR = Yonlendirici(sys.stderr)
 AKTIF: Is | None = None
 IS_KILIDI = threading.Lock()
 _SAHNE_KILIDI = threading.Lock()
+KAPANIYOR = threading.Event()  # program kapanmaya başlayınca (IS_KILIDI altında) kurulur: ondan sonra yeni iş kabul edilmez
+KAPANIYOR_METNI = "Raf Kamera kapanıyor; yeni iş başlatılamaz."
 
 
 def is_baslat(tur: str, baslik: str, fn, *args) -> tuple[bool, str]:
@@ -135,6 +137,8 @@ def is_baslat(tur: str, baslik: str, fn, *args) -> tuple[bool, str]:
     Canlı izleme bu sıraya girmez: kamera başına ayrı çalışır (izleme_baslat)."""
     global AKTIF
     with IS_KILIDI:
+        if KAPANIYOR.is_set():
+            return False, KAPANIYOR_METNI
         if AKTIF is not None and AKTIF.durum == "calisiyor":
             return False, f"Şu an \"{AKTIF.baslik}\" çalışıyor. Bitmesini bekleyin ya da durdurun."
         is_ = Is(tur, baslik)
@@ -151,7 +155,9 @@ def _is_calistir(is_: Is, fn, *args) -> None:
         try:
             sonuc = fn(is_, *args)
             is_.sonuc = sonuc or {}
-            is_.durum = "hata" if is_.sonuc.get("hata") else ("durduruldu" if is_.dur.is_set() else "bitti")
+            # "tamamlandi": iş, geç gelen bir durdurma etkili olmadan işini bitirdi; "durduruldu" gösterilmez
+            durduruldu = is_.dur.is_set() and not is_.sonuc.get("tamamlandi")
+            is_.durum = "hata" if is_.sonuc.get("hata") else ("durduruldu" if durduruldu else "bitti")
         except SystemExit as e:
             if e.code not in (None, 0):
                 if not isinstance(e.code, int):
@@ -789,9 +795,13 @@ def is_test(is_: Is, kod: str, sifre: str | None) -> dict:
     import kamera
 
     ayar = ayar_oku(kod)
-    if kamera.test(ayar, ayar_yolu(kod), sifre) != 0:
+    r = kamera.test(ayar, ayar_yolu(kod), sifre, dur=is_.dur)
+    if r == 2:  # kare yazılmadan önce durduruldu: hiçbir şey kaydedilmedi
+        return {}
+    if r != 0:
         return {"hata": True}
-    return {"kare": f"/ayar/_kare_{kamera.kod(ayar, ayar_yolu(kod))}.jpg?t={int(time.time())}", "kod": kod}
+    return {"kare": f"/ayar/_kare_{kamera.kod(ayar, ayar_yolu(kod))}.jpg?t={int(time.time())}", "kod": kod,
+            "tamamlandi": True}  # kare kaydedildi: geç gelen bir durdurma denemeyi "durduruldu" yapmaz
 
 
 def is_izle(is_: Is, kod: str, sifre: str | None, dakika: float) -> dict:
@@ -938,6 +948,8 @@ def izleme_baslat(kod: str, sifre: str | None = None) -> tuple[bool, str]:
     if (ayar.get("kamera") or {}).get("tur") not in CANLI_TURLER:
         return False, "Canlı izleme IP kamera, kayıt cihazı ya da HTTP akışı içindir. Video dosyasında “Videoyu analiz et”i kullanın."
     with _IZLEME_KILIDI:
+        if KAPANIYOR.is_set():
+            return False, KAPANIYOR_METNI
         if izleme_calisiyor(kod):
             return False, f"{ad} zaten izleniyor."
         calisan = sum(1 for i in IZLEMELER.values() if i.durum == "calisiyor")
@@ -1502,7 +1514,9 @@ def is_motor(is_: Is, ad: str, kod: str, girdi: dict, sinir_sn: float = MOTOR_IS
         k.bitir(0)
         raise SystemExit(f"Analiz motoru işi {int(sinir_sn)} saniyede bitirmedi. AugeLab Studio'nun kurulu ve lisanslı olduğunu kontrol edin.") from None
     finally:
-        studio.KOSULAR.pop("_gorev", None)
+        with studio._KILIT:
+            if studio.KOSULAR.get("_gorev") is k:
+                studio.KOSULAR.pop("_gorev")
     if not cikis.is_file():
         raise SystemExit(f"Analiz motoru sonuç bırakmadı ({k.sorun() or 'motor bu işi henüz desteklemiyor olabilir'}).")
     try:
@@ -2043,6 +2057,8 @@ class Istek(BaseHTTPRequestHandler):
             else:  # canlı izleme: kamera başına ayrı koşu (tek iş sırasına girmez)
                 if (ayar_oku(kod).get("kamera") or {}).get("tur") not in CANLI_TURLER:
                     return self._json({"hata": "Canlı izleme IP kamera, kayıt cihazı ya da HTTP akışı içindir. Video dosyasında “Videoyu analiz et”i kullanın."}, 400)
+                if KAPANIYOR.is_set():  # kapanış başladı: çalışma saati dışında da yeni izleme isteği kaydedilmez
+                    return self._json({"hata": KAPANIYOR_METNI}, 409)
                 if not depo.calisma_saatinde(dt.datetime.now()):
                     c = depo.genel()["calisma"]
                     izleme_istenir(kod, True)
@@ -2227,17 +2243,33 @@ class Istek(BaseHTTPRequestHandler):
         return self._json({"tamam": True, "is": AKTIF.ozet() if AKTIF else None})
 
 
-def kapat(sunucu) -> None:
-    time.sleep(0.4)
-    print("Raf Kamera kapatılıyor.", flush=True)
-    for i in list(IZLEMELER.values()):  # izlenmesi istenenler listede kalır: program açılınca yeniden başlar
+def kapanis_temizligi(is_bekle_sn: float = 20.0) -> None:
+    """Program kapanırken: süren tek seferlik işi ve canlı izlemeleri durdurur, (sınırlı süre) bitmelerini bekler (sahnesini
+    durdurup kuyruğun son kayıtlarını alsınlar, açık olayları kapatsınlar), sonra arkada kalan arayüzsüz Studio süreçlerini
+    kapatır. İlk andan itibaren yeni iş ve yeni izleme kabul edilmez (beklenirken sunucu istek yanıtlamaya devam edebilir).
+    İzlenmesi istenen kameralar listede kalır: program açılınca yeniden başlar."""
+    with IS_KILIDI:
+        KAPANIYOR.set()
+        aktif = AKTIF
+    with _IZLEME_KILIDI:  # izleme_baslat bayrağa bu kilit altında bakar: bundan sonra yeni izleme kaydedilemez
+        isler = [i for i in [aktif, *IZLEMELER.values()] if i is not None and i.durum == "calisiyor"]
+    for i in isler:
         i.dur.set()
+    son = time.monotonic() + is_bekle_sn
+    while any(i.durum == "calisiyor" for i in isler) and time.monotonic() < son:
+        time.sleep(0.3)
     try:
         import studio
 
         studio.durdur_hepsi()  # arayüzsüz Studio süreçleri arkada kalmasın
     except Exception:
         pass
+
+
+def kapat(sunucu) -> None:
+    time.sleep(0.4)
+    print("Raf Kamera kapatılıyor.", flush=True)
+    kapanis_temizligi()
     sunucu.shutdown()
 
 
@@ -2362,14 +2394,7 @@ def main() -> None:
         pass
     finally:
         sunucu.server_close()
-    # izleme sürüyorsa kaydın düzgün kapanması için kısa bir süre tanı
-    calisan = [i for i in [AKTIF, *IZLEMELER.values()] if i is not None and i.durum == "calisiyor"]
-    for i in calisan:
-        i.dur.set()
-    for _ in range(10):
-        if all(i.durum != "calisiyor" for i in calisan):
-            break
-        time.sleep(0.3)
+    kapanis_temizligi()  # süren iş ve izlemeler durdurulup beklenir, arayüzsüz Studio süreçleri kapatılır
 
 
 if __name__ == "__main__":
